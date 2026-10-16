@@ -14,17 +14,17 @@
       stripe
       style="width: 100%"
     >
-      <el-table-column prop="name" label="部门名称" width="120" />
-      <el-table-column prop="code" label="部门编码" width="100" />
-      <el-table-column prop="description" label="部门描述" width="500" />
-      <el-table-column label="状态" width="80">
+      <el-table-column prop="name" label="部门名称" min-width="140" />
+      <el-table-column prop="code" label="部门编码" min-width="120" />
+      <el-table-column prop="description" label="部门描述" min-width="320" />
+      <el-table-column label="状态" min-width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === 1 ? 'success' : 'danger'">
             {{ row.status === 1 ? '启用' : '禁用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="180" />
+      <el-table-column prop="createTime" label="创建时间" min-width="180" />
       <el-table-column label="操作" width="160" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" link :icon="Edit" @click="openEditDialog(row)">

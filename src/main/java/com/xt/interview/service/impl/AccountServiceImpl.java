@@ -1,11 +1,16 @@
 package com.xt.interview.service.impl;
 
 import com.xt.interview.dto.AccountDTO;
+import com.xt.interview.dto.AccountPageResult;
 import com.xt.interview.entity.Account;
 import com.xt.interview.repository.AccountRepository;
 import com.xt.interview.service.AccountService;
 import com.xt.interview.util.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +100,19 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findByDeleted(NOT_DELETED).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AccountPageResult<AccountDTO> pageAccounts(String username, Integer status, Integer roleLevel, int page, int size) {
+        String keyword = (username == null || username.trim().isEmpty()) ? null : username.trim();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+        Page<Account> result = accountRepository.pageAccounts(keyword, status, roleLevel, pageable);
+        List<AccountDTO> list = result.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return new AccountPageResult<>(list, result.getTotalElements(), result.getTotalPages(),
+                result.getNumber(), result.getSize());
     }
 
     @Override

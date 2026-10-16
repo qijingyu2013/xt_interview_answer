@@ -44,6 +44,11 @@ public class Account {
     @Column(name = "update_time")
     private LocalDateTime updateTime;
 
+    // 关联部门id
+    @Column(name = "department_id")
+    private Long departmentId;
+
+
     @PrePersist
     protected void onCreate() {
         createTime = LocalDateTime.now();
@@ -94,4 +99,8 @@ public class Account {
 
     public LocalDateTime getUpdateTime() { return updateTime; }
     public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
+    
+    // 关联部门id
+    public Long getDepartmentId() { return departmentId; }
+    public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
 }

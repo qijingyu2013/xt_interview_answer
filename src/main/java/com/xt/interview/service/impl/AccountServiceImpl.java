@@ -41,6 +41,8 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(dto.getStatus());
         account.setIsSuper(dto.getIsSuper());
         account.setDeleted(NOT_DELETED);
+        // 关联部门id
+        account.setDepartmentId(dto.getDepartmentId());
         account = accountRepository.save(account);
         return convertToDTO(account);
     }
@@ -65,6 +67,8 @@ public class AccountServiceImpl implements AccountService {
         account.setRoleLevel(dto.getRoleLevel());
         account.setStatus(dto.getStatus());
         account.setIsSuper(dto.getIsSuper());
+        // 关联部门id
+        account.setDepartmentId(dto.getDepartmentId());
         account = accountRepository.save(account);
         return convertToDTO(account);
     }
@@ -117,6 +121,8 @@ public class AccountServiceImpl implements AccountService {
         dto.setIsSuper(account.getIsSuper());
         dto.setCreateTime(account.getCreateTime());
         dto.setUpdateTime(account.getUpdateTime());
+        // 关联部门id
+        dto.setDepartmentId(account.getDepartmentId());
         return dto;
     }
 }

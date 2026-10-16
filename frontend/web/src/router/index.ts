@@ -17,6 +17,19 @@ const router = createRouter({
       ]
     },
     {
+      path: '/',
+      component: () => import('@/layouts/MainLayout.vue'),
+      redirect: '/users',
+      children: [
+        {
+          path: 'departments',
+          name: 'DepartmentManagement',
+          component: () => import('@/views/DepartmentManagement.vue'),
+          meta: { requiresAuth: true, title: '部门管理' }
+        }
+      ]
+    },
+    {
       path: '/login',
       name: 'Login',
       component: () => import('@/views/Login.vue')

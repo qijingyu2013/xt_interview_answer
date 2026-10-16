@@ -14,17 +14,9 @@
       stripe
       style="width: 100%"
     >
-      <el-table-column prop="departmentName" label="部门名称" width="120" />
-      <el-table-column prop="departmentCode" label="部门编码" width="100" />
-      <el-table-column prop="gender" label="性别" width="80" />
-      <el-table-column prop="phone" label="联系方式" width="140" />
-      <el-table-column label="权限级别" width="120">
-        <template #default="{ row }">
-          <el-tag :type="roleTagType(row.roleLevel)">
-            {{ roleText(row.roleLevel) }}
-          </el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column prop="name" label="部门名称" width="120" />
+      <el-table-column prop="code" label="部门编码" width="100" />
+      <el-table-column prop="description" label="部门描述" width="500" />
       <el-table-column label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === 1 ? 'success' : 'danger'">
@@ -57,35 +49,14 @@
         :rules="formRules"
         label-width="90px"
       >
-        <el-form-item label="部门名称" prop="departmentName">
-          <el-input v-model="formData.departmentName" placeholder="请输入部门名称" />
+        <el-form-item label="部门名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入部门名称" />
         </el-form-item>
-        <el-form-item label="部门编码" prop="departmentCode">
-          <el-input v-model="formData.departmentCode" placeholder="请输入部门编码" />
+        <el-form-item label="部门编码" prop="code">
+          <el-input v-model="formData.code" placeholder="请输入部门编码" />
         </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="formData.gender" placeholder="请选择性别" style="width: 100%">
-            <el-option label="男" value="男" />
-            <el-option label="女" value="女" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="联系方式" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入联系方式" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="formData.password"
-            type="password"
-            show-password
-            :placeholder="isEdit ? '留空则不修改密码' : '留空则默认123456'"
-          />
-        </el-form-item>
-        <el-form-item label="权限级别" prop="roleLevel">
-          <el-select v-model="formData.roleLevel" placeholder="请选择权限级别" style="width: 100%">
-            <el-option label="用户权限" :value="1" />
-            <el-option label="管理员权限" :value="2" />
-            <el-option label="超级管理员权限" :value="3" />
-          </el-select>
+        <el-form-item label="部门描述" prop="description">
+          <el-input v-model="formData.description" placeholder="请输入部门描述" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="formData.status" placeholder="请选择状态" style="width: 100%">
@@ -106,7 +77,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { accountApi } from '@/api'
+import { departmentApi } from '@/api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Edit, Delete, Refresh } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -122,41 +93,23 @@ const departments = ref<any[]>([])
 const formRef = ref<FormInstance>()
 
 const formData = reactive({
-  departmentName: '',
-  departmentCode: '',
-  gender: '男',
-  phone: '',
-  password: '',
-  roleLevel: 1,
+  name: '',
+  code: '',
+  description: '',
   status: 1,
-  isSuper: 0
 })
 
 const formRules: FormRules = {
-  departmentName: [{ required: true, message: '请输入部门名称', trigger: 'blur' }],
-  departmentCode: [{ required: true, message: '请输入部门编码', trigger: 'blur' }],
-  roleLevel: [{ required: true, message: '请选择权限级别', trigger: 'change' }],
+  name: [{ required: true, message: '请输入部门名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入部门编码', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入部门描述', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }]
 }
 
-function roleText(level: number): string {
-  const map: Record<number, string> = { 1: '用户权限', 2: '管理员权限', 3: '超级管理员' }
-  return map[level] || '未知'
-}
-
-function roleTagType(level: number): 'info' | 'warning' | 'danger' {
-  const map: Record<number, 'info' | 'warning' | 'danger'> = {
-    1: 'info',
-    2: 'warning',
-    3: 'danger'
-  }
-  return map[level] || 'info'
-}
-
-async function loadUsers() {
+async function loadDepartments() {
   loading.value = true
   try {
-    departments.value = await accountApi.getAll()
+    departments.value = await departmentApi.getAll()
   } catch (error: any) {
     ElMessage.error(error.message || '加载部门列表失败')
   } finally {
@@ -165,14 +118,10 @@ async function loadUsers() {
 }
 
 function resetForm() {
-  formData.departmentName = ''
-  formData.departmentCode = ''
-  formData.gender = '男'
-  formData.phone = ''
-  formData.password = ''
-  formData.roleLevel = 1
+  formData.name = ''
+  formData.code = ''
+  formData.description = ''
   formData.status = 1
-  formData.isSuper = 0
   isEdit.value = false
   editId.value = 0
   formRef.value?.resetFields()
@@ -187,13 +136,10 @@ function openEditDialog(row: any) {
   resetForm()
   isEdit.value = true
   editId.value = row.id
-  formData.departmentName = row.departmentName
-  formData.departmentCode = row.departmentCode
-  formData.gender = row.gender || '男'
-  formData.phone = row.phone || ''
-  formData.roleLevel = row.roleLevel
+  formData.name = row.name
+  formData.code = row.code
+  formData.description = row.description || ''
   formData.status = row.status
-  formData.isSuper = row.isSuper
   dialogVisible.value = true
 }
 
@@ -205,19 +151,16 @@ async function handleSubmit() {
     submitting.value = true
     try {
       const data = { ...formData }
-      if (data.password === '') {
-        delete data.password
-      }
 
       if (isEdit.value) {
-        await accountApi.update(editId.value, data)
-        ElMessage.success('用户更新成功')
+        await departmentApi.update(editId.value, data)
+        ElMessage.success('部门更新成功')
       } else {
-        await accountApi.create(data)
-        ElMessage.success('用户创建成功')
+        await departmentApi.create(data)
+        ElMessage.success('部门创建成功')
       }
       dialogVisible.value = false
-      await loadUsers()
+      await loadDepartments()
     } catch (error: any) {
       ElMessage.error(error.message || '操作失败')
     } finally {
@@ -229,7 +172,7 @@ async function handleSubmit() {
 async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(
-      `确定要删除部门 "${row.departmentName}" 吗？`,
+      `确定要删除部门 "${row.name}" 吗？`,
       '删除确认',
       {
         confirmButtonText: '确定删除',
@@ -237,9 +180,9 @@ async function handleDelete(row: any) {
         type: 'warning'
       }
     )
-    await accountApi.delete(row.id)
+    await departmentApi.delete(row.id)
     ElMessage.success('部门删除成功')
-    await loadUsers()
+    await loadDepartments()
   } catch (error: any) {
     if (error !== 'cancel') {
       ElMessage.error(error.message || '删除失败')
@@ -248,7 +191,7 @@ async function handleDelete(row: any) {
 }
 
 onMounted(() => {
-  loadUsers()
+  loadDepartments()
 })
 </script>
 
